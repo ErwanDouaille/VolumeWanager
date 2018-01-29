@@ -3,7 +3,6 @@
 VolumeManager::VolumeManager(QObject *parent) : QObject(parent)
 {
     CoInitialize(NULL);
-
 }
 
 VolumeManager::~VolumeManager()
@@ -11,7 +10,7 @@ VolumeManager::~VolumeManager()
     CoUninitialize();
 }
 
-void VolumeManager::enumerateSessions()
+void VolumeManager::listSessions()
 {
     HRESULT hr = S_OK;
 

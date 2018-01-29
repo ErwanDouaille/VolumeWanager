@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/ressources">
         <file>icons/ic_surround_sound_black_24dp.png</file>
+        <file>images/background.jpg</file>
     </qresource>
 </RCC>

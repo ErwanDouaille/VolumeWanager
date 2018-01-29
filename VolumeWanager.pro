@@ -27,11 +27,15 @@ LIBS += -loleaut32 -lole32
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    volumemanager.cpp
+    volumemanager.cpp \
+    mainwindowtitlebar.cpp \
+    mainwindowbutton.cpp
 
 HEADERS += \
         mainwindow.h \
-    volumemanager.h
+    volumemanager.h \
+    mainwindowtitlebar.h \
+    mainwindowbutton.h
 
 RESOURCES += \
     ressources.qrc

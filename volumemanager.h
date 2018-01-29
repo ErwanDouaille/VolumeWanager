@@ -15,10 +15,8 @@ public:
     ~VolumeManager();
 
     void changeMasterVolume(float value);
-    void enumerateSessions();
-signals:
+    void listSessions();
 
-public slots:
 };
 
 
