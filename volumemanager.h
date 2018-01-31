@@ -6,6 +6,8 @@
 #include <endpointvolume.h>
 #include <audiopolicy.h>
 #include <iostream>
+#include <string>
+#include <regex>
 
 class VolumeManager : public QObject
 {
@@ -14,9 +16,10 @@ public:
     explicit VolumeManager(QObject *parent = nullptr);
     ~VolumeManager();
 
-    void changeMasterVolume(float value);
     void listSessions();
 
+    void setMasterVolume(float value);
+    void setApplicationVolume(std::string applicationName, float value);
 };
 
 
