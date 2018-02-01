@@ -19,6 +19,6 @@ int main(int argc, char *argv[])
 //    MainWindow window;
 //    window.show();
     VolumeManager * vm = new VolumeManager();
-    vm->listSessions();
+    vm->getAvailableSessions();
 //    return app.exec();
 }

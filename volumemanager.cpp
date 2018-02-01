@@ -11,8 +11,9 @@ VolumeManager::~VolumeManager()
 }
 
 
-void VolumeManager::listSessions()
+std::vector<std::string> VolumeManager::getAvailableSessions()
 {
+    std::vector<std::string> list;
     HRESULT hr = S_OK;
     LPWSTR pswSession = NULL;
     std::wstring identifier;
@@ -42,9 +43,23 @@ void VolumeManager::listSessions()
             hr = pSessionControl2->GetSessionIdentifier(&pswSession);
             identifier = std::wstring(pswSession);
             hr = pSessionControl2->QueryInterface(__uuidof(ISimpleAudioVolume), (void**)&pVolume);
-            std::wcout << identifier << std::endl;
+
+            std::string wholePath( identifier.begin(), identifier.end() );
+            std::regex e(".*\\\\(.*)\\..*$");
+            std::smatch sm;
+            std::regex_match(wholePath.cbegin(), wholePath.cend(), sm, e);
+            list.push_back(sm[1]);
+            std::cout << sm[1] << std::endl;
         }
     }
+    pDevice->Release();
+    pVolume->Release();
+    pEnumerator->Release();
+    pSessionList->Release();
+    pSessionControl->Release();
+    pSessionControl2->Release();
+    pSessionManager->Release();
+    return std::vector<std::string>();
 }
 
 void VolumeManager::setApplicationVolume(std::string applicationName, float value)
@@ -76,4 +91,6 @@ void VolumeManager::setMasterVolume(float value)
 
     hr = endpointVolume->SetMasterVolumeLevelScalar(value, NULL);
     endpointVolume->Release();
+    defaultDevice->Release();
+    deviceEnumerator->Release();
 }

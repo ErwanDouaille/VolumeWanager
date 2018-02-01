@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <vector>
 
 class VolumeManager : public QObject
 {
@@ -16,7 +17,7 @@ public:
     explicit VolumeManager(QObject *parent = nullptr);
     ~VolumeManager();
 
-    void listSessions();
+    std::vector<std::string> getAvailableSessions();
 
     void setMasterVolume(float value);
     void setApplicationVolume(std::string applicationName, float value);
