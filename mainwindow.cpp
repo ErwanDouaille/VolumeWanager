@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_MainLayout.setSpacing(0); // No space between window's element
     setLayout(&m_MainLayout);
     
-    m_MainLayout.addWidget(&m_TitleBar, 0, 0, 1, 2, Qt::AlignTop);
+    m_MainLayout.addWidget(&m_TitleBar, 0, 0, 1, 9, Qt::AlignTop);
     m_MainLayout.setRowStretch(1, 1);
     setAttribute(Qt::WA_TranslucentBackground);
     createTrayIcon();
@@ -37,47 +37,76 @@ void MainWindow::initVolumeWanager()
 
 void MainWindow::initGUI()
 {
+    // Not proud of the design .. but anyway, it gonna be static
+    sessionList0 = new QComboBox;
     sessionList1 = new QComboBox;
     sessionList2 = new QComboBox;
     sessionList3 = new QComboBox;
-    sessionList4 = new QComboBox;
-    refreshSessionList();
-    m_MainLayout.addWidget(sessionList1, 1, 0, 1,1);
-    m_MainLayout.addWidget(sessionList2, 1, 1, 1,1);
-    m_MainLayout.addWidget(sessionList3, 2, 0, 1,1);
-    m_MainLayout.addWidget(sessionList4, 2, 1, 1,1);
+    refreshButton = new QPushButton();
+    QIcon icon = QIcon(":/ressources/icons/ic_refresh_white_24dp.png");
+    refreshButton->setIcon(icon);
+    refreshButton->setFlat(true);
+    QObject::connect(refreshButton, SIGNAL(clicked()), this, SLOT(refreshAppList()));
 
+    QPixmap* pixmap_img = new QPixmap(":/ressources/images/button.png");
+    refreshSessionList();
+    m_MainLayout.addWidget(refreshButton, 1, 8, 1,1, Qt::AlignTop);
+
+    QLabel* label_img0  = new QLabel(this);
+    label_img0->setPixmap(pixmap_img->scaled(60,60,Qt::KeepAspectRatio));
+    QLabel* label_img1  = new QLabel(this);
+    label_img1->setPixmap(pixmap_img->scaled(60,60,Qt::KeepAspectRatio));
+    QLabel* label_img2  = new QLabel(this);
+    label_img2->setPixmap(pixmap_img->scaled(60,60,Qt::KeepAspectRatio));
+    QLabel* label_img3  = new QLabel(this);
+    label_img3->setPixmap(pixmap_img->scaled(60,60,Qt::KeepAspectRatio));
+
+    m_MainLayout.addWidget(new QLabel(), 3, 7, 1,1, Qt::AlignCenter);
+
+    m_MainLayout.addWidget(label_img0, 2, 1, 1, 1, Qt::AlignCenter);
+    m_MainLayout.addWidget(sessionList0, 4, 1, 1,1, Qt::AlignCenter);
+
+    m_MainLayout.addWidget(label_img1, 2, 3, 1, 1, Qt::AlignCenter);
+    m_MainLayout.addWidget(sessionList1, 4, 3, 1,1, Qt::AlignCenter);
+
+    m_MainLayout.addWidget(label_img2, 2, 5, 1, 1, Qt::AlignCenter);
+    m_MainLayout.addWidget(sessionList2, 4, 5, 1,1, Qt::AlignCenter);
+
+    m_MainLayout.addWidget(label_img3, 2, 7, 1, 1, Qt::AlignCenter);
+    m_MainLayout.addWidget(sessionList3, 4, 7, 1,1, Qt::AlignCenter);
+
+    m_MainLayout.addWidget(new QLabel(), 5, 7, 1,1, Qt::AlignCenter);
 }
 
 void MainWindow::refreshSessionList()
 {
     std::vector<std::string> list = vm->getAvailableSessions();
+    sessionList0->clear();
     sessionList1->clear();
     sessionList2->clear();
     sessionList3->clear();
-    sessionList4->clear();
     for(std::vector<std::string>::iterator it = list.begin(); it != list.end(); it++)
     {
+        sessionList0->addItem(QString::fromStdString(*it));
         sessionList1->addItem(QString::fromStdString(*it));
         sessionList2->addItem(QString::fromStdString(*it));
         sessionList3->addItem(QString::fromStdString(*it));
-        sessionList4->addItem(QString::fromStdString(*it));
     }
 }
 
 std::string MainWindow::getApplicationNameFor(int id)
 {
     switch (id) {
+    case 0:
+        return sessionList0->currentText().toStdString();
     case 1:
         return sessionList1->currentText().toStdString();
     case 2:
         return sessionList2->currentText().toStdString();
     case 3:
         return sessionList3->currentText().toStdString();
-    case 4:
-        return sessionList4->currentText().toStdString();
     default:
-        return sessionList1->currentText().toStdString();
+        return sessionList0->currentText().toStdString();
     }
 }
 
@@ -176,8 +205,14 @@ void MainWindow::closeWindow()
 
 void MainWindow::volumeChanged(int id, int value)
 {
+    std::cout << id << std::endl;
     std::string appName = getApplicationNameFor(id);
     emit appVolumeChanged(appName, value);
+}
+
+void MainWindow::refreshAppList()
+{
+    refreshSessionList();
 }
 
 void  MainWindow::createTrayIcon()

@@ -3,5 +3,7 @@
         <file>icons/ic_surround_sound_black_24dp.png</file>
         <file>images/background.jpg</file>
         <file>icons/ic_surround_sound_white_24dp.png</file>
+        <file>icons/ic_refresh_white_24dp.png</file>
+        <file>images/button.png</file>
     </qresource>
 </RCC>

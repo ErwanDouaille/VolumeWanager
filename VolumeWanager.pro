@@ -41,3 +41,5 @@ HEADERS += \
 
 RESOURCES += \
     ressources.qrc
+
+FORMS +=

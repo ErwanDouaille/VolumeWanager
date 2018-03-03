@@ -6,6 +6,7 @@
 #include <QSizeGrip>
 #include <QAction>
 #include <QDesktopWidget>
+#include <QPushButton>
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QComboBox>
@@ -15,8 +16,8 @@
 #include "volumemanager.h"
 #include "serialconnection.h"
 
-const int WIDTH = 800;
-const int HEIGHT = 400;
+const int WIDTH = 600;
+const int HEIGHT = 170;
 
 
 class MainWindow: public QWidget
@@ -47,16 +48,18 @@ protected:
     QMenu *trayIconMenu;
     VolumeManager * vm;
     SerialConnection * sc;
+    QPushButton* refreshButton;
+    QComboBox* sessionList0;
     QComboBox* sessionList1;
     QComboBox* sessionList2;
     QComboBox* sessionList3;
-    QComboBox* sessionList4;
 
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void showMessage();
     void closeWindow();
     void volumeChanged(int id, int value);
+    void refreshAppList();
 
 
 signals:
