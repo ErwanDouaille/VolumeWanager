@@ -7,21 +7,78 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(WindowTitleChanged()), &m_TitleBar, SLOT(updateWindowTitle()));
     connect(&m_TitleBar, SIGNAL(closeWindow()), this, SLOT(closeWindow()));
 
-    setMinimumSize(512,512);
-    setMaximumSize(512,512);
-    setFixedSize(512, 512);
-    resize(512, 512);
+    setMinimumSize(WIDTH,HEIGHT);
+    setMaximumSize(WIDTH,HEIGHT);
+    setFixedSize(WIDTH, HEIGHT);
+    resize(WIDTH, HEIGHT);
     setWindowTitle(tr("Volume Wanager"));
     setWindowFlags(Qt::FramelessWindowHint);
 
     m_MainLayout.setMargin(0);  // No space between window's element and the border
     m_MainLayout.setSpacing(0); // No space between window's element
     setLayout(&m_MainLayout);
-
-    m_MainLayout.addWidget(&m_TitleBar, 0, 0, 1, 1);
+    
+    m_MainLayout.addWidget(&m_TitleBar, 0, 0, 1, 2, Qt::AlignTop);
     m_MainLayout.setRowStretch(1, 1);
     setAttribute(Qt::WA_TranslucentBackground);
     createTrayIcon();
+    initVolumeWanager();
+    initGUI();
+}
+
+void MainWindow::initVolumeWanager()
+{
+    vm = new VolumeManager();
+    vm->getAvailableSessions();
+    sc = new SerialConnection();
+    QObject::connect(sc, SIGNAL(volumeChanged(int, int)), this, SLOT(volumeChanged(int, int)));
+    QObject::connect(this, SIGNAL(appVolumeChanged(std::string, int)), vm, SLOT(appVolumeChanged(std::string, int)));
+}
+
+void MainWindow::initGUI()
+{
+    sessionList1 = new QComboBox;
+    sessionList2 = new QComboBox;
+    sessionList3 = new QComboBox;
+    sessionList4 = new QComboBox;
+    refreshSessionList();
+    m_MainLayout.addWidget(sessionList1, 1, 0, 1,1);
+    m_MainLayout.addWidget(sessionList2, 1, 1, 1,1);
+    m_MainLayout.addWidget(sessionList3, 2, 0, 1,1);
+    m_MainLayout.addWidget(sessionList4, 2, 1, 1,1);
+
+}
+
+void MainWindow::refreshSessionList()
+{
+    std::vector<std::string> list = vm->getAvailableSessions();
+    sessionList1->clear();
+    sessionList2->clear();
+    sessionList3->clear();
+    sessionList4->clear();
+    for(std::vector<std::string>::iterator it = list.begin(); it != list.end(); it++)
+    {
+        sessionList1->addItem(QString::fromStdString(*it));
+        sessionList2->addItem(QString::fromStdString(*it));
+        sessionList3->addItem(QString::fromStdString(*it));
+        sessionList4->addItem(QString::fromStdString(*it));
+    }
+}
+
+std::string MainWindow::getApplicationNameFor(int id)
+{
+    switch (id) {
+    case 1:
+        return sessionList1->currentText().toStdString();
+    case 2:
+        return sessionList2->currentText().toStdString();
+    case 3:
+        return sessionList3->currentText().toStdString();
+    case 4:
+        return sessionList4->currentText().toStdString();
+    default:
+        return sessionList1->currentText().toStdString();
+    }
 }
 
 void MainWindow::showEvent(QShowEvent *event)
@@ -59,6 +116,10 @@ void MainWindow::paintEvent(QPaintEvent *event)
     {
         QPainter painter(this);
         painter.drawPixmap(0, 0, *m_Cache);
+        QStyleOption opt;
+        opt.init(this);
+        QPainter p(this);
+        style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
     }
 }
 
@@ -113,6 +174,12 @@ void MainWindow::closeWindow()
     closeEvent(new QCloseEvent());
 }
 
+void MainWindow::volumeChanged(int id, int value)
+{
+    std::string appName = getApplicationNameFor(id);
+    emit appVolumeChanged(appName, value);
+}
+
 void  MainWindow::createTrayIcon()
 {
     quitAction = new QAction(tr("&Quit"), this);
@@ -124,7 +191,7 @@ void  MainWindow::createTrayIcon()
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
 
-    QIcon icon = QIcon(":/ressources/icons/ic_surround_sound_black_24dp.png");
+    QIcon icon = QIcon(":/ressources/icons/ic_surround_sound_white_24dp.png");
     setWindowIcon(icon);
     trayIcon->setIcon(icon);
     trayIcon->setToolTip(tr("Volume Wanager"));

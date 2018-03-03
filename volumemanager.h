@@ -21,6 +21,9 @@ public:
 
     void setMasterVolume(float value);
     void setApplicationVolume(std::string applicationName, float value);
+
+public slots:
+    void appVolumeChanged(std::string appName, int value);
 };
 
 

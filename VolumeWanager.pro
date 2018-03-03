@@ -4,9 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui serialport
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets serialport
 
 TARGET = VolumeWanager
 TEMPLATE = app
@@ -29,13 +29,15 @@ SOURCES += \
         mainwindow.cpp \
     volumemanager.cpp \
     mainwindowtitlebar.cpp \
-    mainwindowbutton.cpp
+    mainwindowbutton.cpp \
+    serialconnection.cpp
 
 HEADERS += \
         mainwindow.h \
     volumemanager.h \
     mainwindowtitlebar.h \
-    mainwindowbutton.h
+    mainwindowbutton.h \
+    serialconnection.h
 
 RESOURCES += \
     ressources.qrc
