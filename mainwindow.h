@@ -11,6 +11,8 @@
 #include <QMenu>
 #include <QComboBox>
 #include <QVBoxLayout>
+#include <QApplication>
+#include <QSettings>
 
 #include "mainwindowtitlebar.h"
 #include "volumemanager.h"
@@ -38,6 +40,8 @@ protected:
     void createTrayIcon();
     void setWindowTitle(const QString &title);
     void refreshSessionList();
+    void loadSettings();
+    void saveSettings();
     std::string getApplicationNameFor(int id);
 
     QGridLayout m_MainLayout;
@@ -49,10 +53,8 @@ protected:
     VolumeManager * vm;
     SerialConnection * sc;
     QPushButton* refreshButton;
-    QComboBox* sessionList0;
-    QComboBox* sessionList1;
-    QComboBox* sessionList2;
-    QComboBox* sessionList3;
+    std::vector<QComboBox*> comboBoxList;
+    QString m_sSettingsFile;
 
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -60,6 +62,7 @@ private slots:
     void closeWindow();
     void volumeChanged(int id, int value);
     void refreshAppList();
+    void selectionChanged(QString);
 
 
 signals:

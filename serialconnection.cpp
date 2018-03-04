@@ -24,23 +24,27 @@ void SerialConnection::setRunning(bool running)
 
 void SerialConnection::run()
 {
-    foreach ( const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+    while(m_running)
     {
-        if (info.description().compare("Arduino Leonardo") == 0)
+        foreach ( const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
         {
-            QSerialPort serial;
-            serial.setPort(info);
-            serial.setBaudRate(QSerialPort::Baud9600);
-            if (serial.open(QIODevice::ReadWrite)){
-                while(m_running)
+            if (info.description().compare("Arduino Leonardo") == 0)
+            {
+                QSerialPort serial;
+                serial.setPort(info);
+                serial.setBaudRate(QSerialPort::Baud9600);
+                serial.setDataBits(QSerialPort::Data8);
+                if (serial.open(QIODevice::ReadOnly))
                 {
-                    if(serial.waitForReadyRead(100))
+                    serial.setDataTerminalReady(true);
+                    serial.setRequestToSend(true);
+                    if(serial.waitForReadyRead(2000))
                     {
                         QByteArray byteArray = serial.readAll();
                         parseData(byteArray);
                     }
+                    serial.close();
                 }
-                serial.close();
             }
         }
     }

@@ -63,7 +63,6 @@ std::vector<std::string> VolumeManager::getAvailableSessions()
 
 void VolumeManager::setApplicationVolume(std::string applicationName, float value)
 {
-    std::cout << applicationName << " " << value << std::endl;;
     if (applicationName.compare("master") == 0)
     {
         setMasterVolume(value);

@@ -4,6 +4,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent) , m_TitleBar(this)
 {
     m_Cache = NULL;
+    m_sSettingsFile = QApplication::applicationDirPath() + "/settings.ini";
     connect(this, SIGNAL(WindowTitleChanged()), &m_TitleBar, SLOT(updateWindowTitle()));
     connect(&m_TitleBar, SIGNAL(closeWindow()), this, SLOT(closeWindow()));
 
@@ -38,10 +39,11 @@ void MainWindow::initVolumeWanager()
 void MainWindow::initGUI()
 {
     // Not proud of the design .. but anyway, it gonna be static
-    sessionList0 = new QComboBox;
-    sessionList1 = new QComboBox;
-    sessionList2 = new QComboBox;
-    sessionList3 = new QComboBox;
+    comboBoxList.push_back(new QComboBox());
+    comboBoxList.push_back(new QComboBox());
+    comboBoxList.push_back(new QComboBox());
+    comboBoxList.push_back(new QComboBox());
+
     refreshButton = new QPushButton();
     QIcon icon = QIcon(":/ressources/icons/ic_refresh_white_24dp.png");
     refreshButton->setIcon(icon);
@@ -49,7 +51,6 @@ void MainWindow::initGUI()
     QObject::connect(refreshButton, SIGNAL(clicked()), this, SLOT(refreshAppList()));
 
     QPixmap* pixmap_img = new QPixmap(":/ressources/images/button.png");
-    refreshSessionList();
     m_MainLayout.addWidget(refreshButton, 1, 8, 1,1, Qt::AlignTop);
 
     QLabel* label_img0  = new QLabel(this);
@@ -64,49 +65,87 @@ void MainWindow::initGUI()
     m_MainLayout.addWidget(new QLabel(), 3, 7, 1,1, Qt::AlignCenter);
 
     m_MainLayout.addWidget(label_img0, 2, 1, 1, 1, Qt::AlignCenter);
-    m_MainLayout.addWidget(sessionList0, 4, 1, 1,1, Qt::AlignCenter);
+    m_MainLayout.addWidget(comboBoxList.at(0), 4, 1, 1,1, Qt::AlignCenter);
 
     m_MainLayout.addWidget(label_img1, 2, 3, 1, 1, Qt::AlignCenter);
-    m_MainLayout.addWidget(sessionList1, 4, 3, 1,1, Qt::AlignCenter);
+    m_MainLayout.addWidget(comboBoxList.at(1), 4, 3, 1,1, Qt::AlignCenter);
 
     m_MainLayout.addWidget(label_img2, 2, 5, 1, 1, Qt::AlignCenter);
-    m_MainLayout.addWidget(sessionList2, 4, 5, 1,1, Qt::AlignCenter);
+    m_MainLayout.addWidget(comboBoxList.at(2), 4, 5, 1,1, Qt::AlignCenter);
 
     m_MainLayout.addWidget(label_img3, 2, 7, 1, 1, Qt::AlignCenter);
-    m_MainLayout.addWidget(sessionList3, 4, 7, 1,1, Qt::AlignCenter);
+    m_MainLayout.addWidget(comboBoxList.at(3), 4, 7, 1,1, Qt::AlignCenter);
 
     m_MainLayout.addWidget(new QLabel(), 5, 7, 1,1, Qt::AlignCenter);
+
+    refreshSessionList();
+    loadSettings();
+    for(std::vector<QComboBox*>::iterator it = comboBoxList.begin(); it != comboBoxList.end(); it++)
+        QObject::connect((*it), SIGNAL(currentTextChanged(QString)), this, SLOT(selectionChanged(QString)));
+
 }
 
 void MainWindow::refreshSessionList()
 {
+    for(std::vector<QComboBox*>::iterator it = comboBoxList.begin(); it != comboBoxList.end(); it++)
+        QObject::disconnect((*it), SIGNAL(currentTextChanged(QString)), this, SLOT(selectionChanged(QString)));
+
     std::vector<std::string> list = vm->getAvailableSessions();
-    sessionList0->clear();
-    sessionList1->clear();
-    sessionList2->clear();
-    sessionList3->clear();
+    for(std::vector<QComboBox*>::iterator it = comboBoxList.begin(); it != comboBoxList.end(); it++)
+        (*it)->clear();
     for(std::vector<std::string>::iterator it = list.begin(); it != list.end(); it++)
     {
-        sessionList0->addItem(QString::fromStdString(*it));
-        sessionList1->addItem(QString::fromStdString(*it));
-        sessionList2->addItem(QString::fromStdString(*it));
-        sessionList3->addItem(QString::fromStdString(*it));
+        for(std::vector<QComboBox*>::iterator item = comboBoxList.begin(); item != comboBoxList.end(); item++)
+            (*item)->addItem(QString::fromStdString(*it));
     }
+    loadSettings();
+    for(std::vector<QComboBox*>::iterator it = comboBoxList.begin(); it != comboBoxList.end(); it++)
+        QObject::connect((*it), SIGNAL(currentTextChanged(QString)), this, SLOT(selectionChanged(QString)));
+
+}
+
+void MainWindow::loadSettings()
+{
+    std::cout << m_sSettingsFile.toStdString() << std::endl;
+    QSettings* settings = new QSettings(m_sSettingsFile, QSettings::IniFormat);
+    QString value;
+    for (int i = 0; i < 4; i++)
+    {
+        value = settings->value("id" + QString::number(i), "").toString();
+        int index = comboBoxList.at(i)->findText(value);
+        if ( index != -1 ) {
+           comboBoxList.at(i)->setCurrentIndex(index);
+        } else
+        {
+            comboBoxList.at(i)->addItem(value);
+            comboBoxList.at(i)->setCurrentText(value);
+        }
+    }
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings* settings = new QSettings(m_sSettingsFile, QSettings::IniFormat);
+    for (int i = 0; i < comboBoxList.size(); i++)
+    {
+        settings->setValue("id" + QString::number(i), comboBoxList.at(i)->currentText());
+    }
+    settings->sync();
 }
 
 std::string MainWindow::getApplicationNameFor(int id)
 {
     switch (id) {
     case 0:
-        return sessionList0->currentText().toStdString();
+        return comboBoxList.at(id)->currentText().toStdString();
     case 1:
-        return sessionList1->currentText().toStdString();
+        return comboBoxList.at(id)->currentText().toStdString();
     case 2:
-        return sessionList2->currentText().toStdString();
+        return comboBoxList.at(id)->currentText().toStdString();
     case 3:
-        return sessionList3->currentText().toStdString();
+        return comboBoxList.at(id)->currentText().toStdString();
     default:
-        return sessionList0->currentText().toStdString();
+        return comboBoxList.at(0)->currentText().toStdString();
     }
 }
 
@@ -205,7 +244,6 @@ void MainWindow::closeWindow()
 
 void MainWindow::volumeChanged(int id, int value)
 {
-    std::cout << id << std::endl;
     std::string appName = getApplicationNameFor(id);
     emit appVolumeChanged(appName, value);
 }
@@ -213,6 +251,11 @@ void MainWindow::volumeChanged(int id, int value)
 void MainWindow::refreshAppList()
 {
     refreshSessionList();
+}
+
+void MainWindow::selectionChanged(QString)
+{
+    saveSettings();
 }
 
 void  MainWindow::createTrayIcon()
