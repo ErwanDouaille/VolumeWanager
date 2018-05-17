@@ -37,7 +37,7 @@ void SerialConnection::run()
                 if (serial.open(QIODevice::ReadOnly))
                 {
                     serial.setDataTerminalReady(true);
-                    serial.setRequestToSend(true);
+//                    serial.setRequestToSend(true);
                     if(serial.waitForReadyRead(2000))
                     {
                         QByteArray byteArray = serial.readAll();
@@ -53,29 +53,28 @@ void SerialConnection::run()
 void SerialConnection::parseData(QByteArray message)
 {
     std::string s = message.toStdString();
+    std::cout << s << std::endl;
     std::string delimiter = " ";
 
     std::vector<std::string> arguments;
     size_t pos = 0;
     std::string token;
-    while ((pos = s.find(delimiter)) != std::string::npos) {
+    while ((pos = s.find(delimiter)) != std::string::npos)
+    {
         token = s.substr(0, pos);
         arguments.push_back(token);
         s.erase(0, pos + delimiter.length());
     }
     arguments.push_back(s);
 
-    int id = -1;
-    int value = -1;
-    int tmp = -1;
+    int id = -1, value = -1, tmp = -1;
     if (arguments.size() != 2)
         return;
-    foreach (s, arguments) {
-    std::cout << s << " ";
-    }
-    std::cout << "size " << arguments.size()<< std::endl;
-    try {
-        foreach (s, arguments) {
+
+    try
+    {
+        foreach (s, arguments)
+        {
             tmp = std::stoi(s.substr(s.find("=") + 1));
             if (s.find("id") != std::string::npos)
                 id = tmp;
@@ -83,14 +82,10 @@ void SerialConnection::parseData(QByteArray message)
                 value = tmp;
         }
 
-        if (tmp != -1)
-        {
-            std::cout << "emit " << id << " " << value << std::endl;
+        if (id != -1 && value != -1)
             emit volumeChanged(id, value);
-        }
     } catch (std::invalid_argument err)
     {
         std::cerr << "received corrupted datas ... " << std::endl;
-        std::cerr << tmp << " " << id << " " << value <<std::endl;
     }
 }
