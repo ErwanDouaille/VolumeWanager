@@ -67,23 +67,30 @@ void SerialConnection::parseData(QByteArray message)
 
     int id = -1;
     int value = -1;
+    int tmp = -1;
+    if (arguments.size() != 2)
+        return;
     foreach (s, arguments) {
-        int tmp = -1;
-        try
-        {
+    std::cout << s << " ";
+    }
+    std::cout << "size " << arguments.size()<< std::endl;
+    try {
+        foreach (s, arguments) {
             tmp = std::stoi(s.substr(s.find("=") + 1));
             if (s.find("id") != std::string::npos)
                 id = tmp;
             if (s.find("value") != std::string::npos)
                 value = tmp;
-        } catch (std::invalid_argument err)
-        {
-            std::cerr << "received corrupted datas ... " << std::endl;
         }
-    }
 
-    if (id != -1 && value != -1)
+        if (tmp != -1)
+        {
+            std::cout << "emit " << id << " " << value << std::endl;
+            emit volumeChanged(id, value);
+        }
+    } catch (std::invalid_argument err)
     {
-        emit volumeChanged(id, value);
+        std::cerr << "received corrupted datas ... " << std::endl;
+        std::cerr << tmp << " " << id << " " << value <<std::endl;
     }
 }

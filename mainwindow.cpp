@@ -144,8 +144,6 @@ std::string MainWindow::getApplicationNameFor(int id)
         return comboBoxList.at(id)->currentText().toStdString();
     case 3:
         return comboBoxList.at(id)->currentText().toStdString();
-    default:
-        return comboBoxList.at(0)->currentText().toStdString();
     }
 }
 
