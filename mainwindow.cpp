@@ -106,7 +106,6 @@ void MainWindow::refreshSessionList()
 
 void MainWindow::loadSettings()
 {
-    std::cout << m_sSettingsFile.toStdString() << std::endl;
     QSettings* settings = new QSettings(m_sSettingsFile, QSettings::IniFormat);
     QString value;
     for (int i = 0; i < 4; i++)

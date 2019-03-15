@@ -53,7 +53,6 @@ void SerialConnection::run()
 void SerialConnection::parseData(QByteArray message)
 {
     std::string s = message.toStdString();
-    std::cout << s << std::endl;
     std::string delimiter = " ";
 
     std::vector<std::string> arguments;

@@ -1,5 +1,13 @@
 #include "volumemanager.h"
 
+ISimpleAudioVolume *pVolume = NULL;
+IMMDevice* pDevice = NULL;
+IMMDeviceEnumerator* pEnumerator = NULL;
+IAudioSessionEnumerator *pSessionList = NULL;
+IAudioSessionControl *pSessionControl = NULL;
+IAudioSessionControl2 *pSessionControl2 = NULL;
+IAudioSessionManager2* pSessionManager = NULL;
+
 VolumeManager::VolumeManager(QObject *parent) : QObject(parent)
 {
     CoInitialize(NULL);
@@ -71,13 +79,6 @@ void VolumeManager::setApplicationVolume(std::string applicationName, float valu
         HRESULT hr = S_OK;
         LPWSTR pswSession = NULL;
         std::wstring identifier;
-        IMMDevice* pDevice = NULL;
-        ISimpleAudioVolume *pVolume = NULL;
-        IMMDeviceEnumerator* pEnumerator = NULL;
-        IAudioSessionEnumerator *pSessionList = NULL;
-        IAudioSessionControl *pSessionControl = NULL;
-        IAudioSessionControl2 *pSessionControl2 = NULL;
-        IAudioSessionManager2* pSessionManager = NULL;
         hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&pEnumerator);
 
         hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pDevice);
@@ -134,4 +135,5 @@ void VolumeManager::setMasterVolume(float value)
     defaultDevice = NULL;
 
     hr = endpointVolume->SetMasterVolumeLevelScalar(value, NULL);
+    endpointVolume->Release();
 }
